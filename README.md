@@ -1,4 +1,4 @@
 tikz-vibro-acoustic
 ===================
 
-Some illustration with LaTex Tikz.
+Some illustration with LaTeX Tikz.

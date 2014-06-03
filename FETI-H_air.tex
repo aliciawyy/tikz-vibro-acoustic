@@ -1,0 +1,23 @@
+% Illustration of the FETI-H in acoustic field
+% file : FETI-H_air.tex
+% author : Alicia Wang, Total SA
+
+\begin{tikzpicture}[
+  grid/.style={very thin},
+  axis/.style={->,gray},
+  domain/.style={opacity=.5},
+  air/.style={red},
+  solid/.style={blue}
+  ]
+  
+  \draw[black] (-2,0) -- (0,2) -- (2,2) -- (-2,2) -- cycle;
+  
+  \draw[air, thick] (-6,0) -- (0,0);
+  \draw[air, thick] (-3,3) -- (-3,-3);
+  \node[air] at (-0.5, 2.1) {$\Gamma_a$};
+  \node[air] at (-1, 1) {$\Omega_a^{(t)}$};
+  \node[air] at (1, 1)  {$\Omega_a^{(q)}$};
+  
+\end{tikzpicture}
+
+

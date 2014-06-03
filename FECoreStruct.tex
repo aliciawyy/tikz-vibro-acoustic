@@ -1,0 +1,298 @@
+% file : FECoreStruct.text
+% author : Alicia Wang, Total SA
+% This template shows the structure of FECore of the open source software FEBio.
+
+
+\documentclass[landscape,11pt]{report}
+\usepackage{fancyhdr}
+\usepackage[utf8]{inputenc}
+
+ \usepackage{tikz}
+
+% \usepackage{graphicx}
+% \usepackage{tikzexternal}
+
+\usepackage[left=27mm, right=27mm, top=30mm, bottom=25mm]{geometry}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[C]{\textcolor[gray]{0.4}{Structure of the namespace FECore}}
+\fancyfoot[L]{\textcolor[gray]{0.4}{\footnotesize Alicia \textsc{Wang} - March 2012} }
+\fancyfoot[R]{\thepage}
+
+\setlength{\headheight}{14pt}
+
+\author{Alicia \sc{Wang}}
+\date\today
+\title{Structure of the namespace FECore}
+
+
+\pgfrealjobname{FECoreStruct}
+\usetikzlibrary{trees}
+
+%%-------------------------
+\begin{document}
+
+
+\tikzstyle{selected} = [draw=red,fill=red!30]
+\tikzstyle{optional} = [dashed,fill=gray!50]
+
+\tikzstyle{abstract} = [draw=red, dashed, text centered, text width = 32mm,
+fill=red!30, anchor=west, font=\sffamily]
+\tikzstyle{concret} = [rectangle, draw=black, thick, text centered, text width = 40mm,
+anchor=west, font=\sffamily]
+\tikzstyle{general} = [magenta, very thick, font=\sffamily\large]
+
+
+\begin{figure*}[!h]
+
+\beginpgfgraphicnamed{pic1}
+\begin{tikzpicture}[%
+    matrixchild/.style={grow=down,anchor=west,
+	grow via three points={one child at (0.5,-1) and
+	two children at (0.5,-1) and (0.5,-2)},
+	edge from parent path ={(\tikzparentnode.south) |- (\tikzchildnode.west)}},
+	solverchild/.style={grow=down,anchor=east, xshift = -54mm,
+	grow via three points={one child at (0.5,-1) and
+	two children at (0.5,-1) and (0.5,-2)},
+	edge from parent path={(\tikzparentnode.south) |- (\tikzchildnode.east)}}]
+
+%Equation system part
+	\node at (0.5,-0.5) (SparseMP) [concret, text width = 32mm] {SparseMatrixProfile};
+
+	\node (SparseM) [abstract, below of = SparseMP, node distance = 28mm] {SparseMatrix}
+		child [matrixchild] { node (CompactM) [abstract] {CompactMatrix}
+			child [matrixchild] { node (CompactSymmM) [concret] {CompactSymmMatrix} }
+			child [matrixchild] { node (CompactUnSymmM) [concret] {CompactUnSymmMatrix} }
+			}
+		child [matrixchild] { node (DenseM) [concret, below of = CompactUnSymmM] {DenseMatrix} }
+		child [matrixchild] { node (SkylineM) [concret, below of = DenseM] {SkylineMatrix}};
+
+	\path[->] (SparseMP) edge [orange]
+		       node [above,sloped] {support} (SparseM);
+	\draw[<-] (SparseM.south) |- (CompactM.west);
+	\draw[<-] (CompactM.south) |- (CompactSymmM.west);
+
+	\node (NonLinearS)
+	[abstract, text width = 40mm, below of = SkylineM, node distance = 4cm]
+	{NonLinearSystem};
+
+
+% Solver part
+	\node (LinearS) [abstract, right of = SparseMP, node distance = 16cm] {LinearSolver}
+		child [solverchild]{ node (ConjGradIterS) [concret] {ConjGradIterSolver} }
+		child [solverchild]{ node (PSLDLTS) [concret] {PSLDLTSolver} }
+		child [solverchild]{ node (RCICGS) [concret] {RCICGSolver} }
+		child [solverchild]{ node (WSMPS) [concret] {WSMPSolver} }
+	    child [solverchild]{ node (PardisoS) [concret] {PardisoSolver} }
+		child [solverchild]{ node (SuperLUS) [concret] {SuperLUSolver} }
+		child [solverchild]{ node (SuperLUMTS) [concret] {SuperLU\_MT\_Solver} }
+		child [solverchild]{ node (LUS) [concret] {LUSolver} }
+		child [solverchild]{ node (SkylineS) [concret] {SkylineSolver} };
+
+	\draw[<-] (LinearS.south) |- (ConjGradIterS.east);
+
+	\node (BFGSS) [concret, below of = SkylineS, node distance = 28mm] {BFGSSolver};
+
+	\draw[->,orange] (LinearS.east) .. controls +(up:6mm) and +(right:16mm) .. node[above,sloped]
+					 {support} (BFGSS.east);
+
+% Solving relation
+% 	\draw[<-,blue] (CompactSymmM.east) -- node[above,sloped] {solve} (ConjGradIterS.west);
+% 	\draw[<-,blue]	(CompactSymmM.east) -- (PSLDLTS.west);
+% 	\draw[<-,blue]	(CompactSymmM.east) -- (RCICGS.west);
+% 	\draw[<-,blue]	(CompactSymmM.east) -- (WSMPS.west);
+% 	\draw[<-,blue]	(CompactSymmM.east) -- (PardisoS.west);
+% 	\draw[<-,blue]	(CompactUnSymmM.east) -- (PardisoS.west);
+% 	\draw[<-,blue]	(CompactUnSymmM.east) -- (SuperLUS.west);
+% 	\draw[<-,blue]	(CompactUnSymmM.east) -- (SuperLUMTS.west);
+% 	\draw[<-,blue]	(DenseM.east) -- (LUS.west);
+% 	\draw[<-,blue]	(SkylineM.east) -- (SkylineS.west);
+% 	\draw[<-,blue]	(NonLinearS.east) -- (BFGSS.west);
+
+
+	\draw[magenta] (0,0) rectangle (10,-10.5);
+	\node at (8,-0.5) [general] {Linear Systems};
+
+	\draw[magenta] (0,-11.5) rectangle (10,-14);
+	\node at (8,-13.5) [general] {Non Linear Systems};
+
+	\draw[magenta] (12,0) rectangle (21,-10.5);
+	\node at (14,-0.5) [general] {Linear Solvers};
+
+	\draw[magenta] (12,-11.5) rectangle (21,-14);
+	\node at (14,-13.5) [general] {Non Linear Solvers};
+
+	\draw[gray!80,very thick] (11,0) -- (11, -15);
+		\node at (8.5,-15) [general, gray, font=\sffamily\Large] {Equation Systems};
+		\node at (12.5,-15) [general, gray, font=\sffamily\Large] {Solvers};
+
+\end{tikzpicture}
+\endpgfgraphicnamed
+
+\end{figure*}
+
+\newpage
+\begin{figure*}[!h]
+
+\beginpgfgraphicnamed{pic2}
+\begin{tikzpicture}[%
+    matrixchild/.style={grow=down,anchor=west,
+	grow via three points={one child at (0.5,-1) and
+	two children at (0.5,-1) and (0.5,-2)},
+	edge from parent path ={(\tikzparentnode.south) |- (\tikzchildnode.west)}},
+	solverchild/.style={grow=down,anchor=east, xshift = -54mm,
+	grow via three points={one child at (0.5,-1) and
+	two children at (0.5,-1) and (0.5,-2)},
+	edge from parent path={(\tikzparentnode.south) |- (\tikzchildnode.east)}}]
+
+%Equation system part
+	\node at (0.5,-0.5) (SparseMP) [concret, text width = 32mm] {SparseMatrixProfile};
+
+	\node (SparseM) [abstract, below of = SparseMP, node distance = 28mm] {SparseMatrix}
+		child [matrixchild] { node (CompactM) [abstract] {CompactMatrix}
+			child [matrixchild] { node (CompactSymmM) [concret] {CompactSymmMatrix} }
+			child [matrixchild] { node (CompactUnSymmM) [concret] {CompactUnSymmMatrix} }
+			}
+		child [matrixchild] { node (DenseM) [concret, below of = CompactUnSymmM] {DenseMatrix} }
+		child [matrixchild] { node (SkylineM) [concret, below of = DenseM] {SkylineMatrix}};
+
+	\path[->] (SparseMP) edge [orange]
+		       node [above,sloped] {support} (SparseM);
+	\draw[<-] (SparseM.south) |- (CompactM.west);
+	\draw[<-] (CompactM.south) |- (CompactSymmM.west);
+
+	\node (NonLinearS)
+	[abstract, text width = 40mm, below of = SkylineM, node distance = 4cm]
+	{NonLinearSystem};
+
+
+% Solver part
+	\node (LinearS) [abstract, right of = SparseMP, node distance = 16cm] {LinearSolver}
+		child [solverchild]{ node (ConjGradIterS) [concret] {ConjGradIterSolver} }
+		child [solverchild]{ node (PSLDLTS) [concret] {PSLDLTSolver} }
+		child [solverchild]{ node (RCICGS) [concret] {RCICGSolver} }
+		child [solverchild]{ node (WSMPS) [concret] {WSMPSolver} }
+	    child [solverchild]{ node (PardisoS) [concret] {PardisoSolver} }
+		child [solverchild]{ node (SuperLUS) [concret] {SuperLUSolver} }
+		child [solverchild]{ node (SuperLUMTS) [concret] {SuperLU\_MT\_Solver} }
+		child [solverchild]{ node (LUS) [concret] {LUSolver} }
+		child [solverchild]{ node (SkylineS) [concret] {SkylineSolver} };
+
+	\draw[<-] (LinearS.south) |- (ConjGradIterS.east);
+
+	\node (BFGSS) [concret, below of = SkylineS, node distance = 28mm] {BFGSSolver};
+
+	\draw[->,orange] (LinearS.east) .. controls +(up:6mm) and +(right:16mm) .. node[above,sloped]
+					 {support} (BFGSS.east);
+
+% Solving relation
+	\draw[<-,blue] (CompactSymmM.east) -- node[above,sloped] {solve} (ConjGradIterS.west);
+	\draw[<-,blue]	(CompactSymmM.east) -- (PSLDLTS.west);
+	\draw[<-,blue]	(CompactSymmM.east) -- (RCICGS.west);
+	\draw[<-,blue]	(CompactSymmM.east) -- (WSMPS.west);
+	\draw[<-,blue]	(CompactSymmM.east) -- (PardisoS.west);
+	\draw[<-,blue]	(CompactUnSymmM.east) -- (PardisoS.west);
+	\draw[<-,blue]	(CompactUnSymmM.east) -- (SuperLUS.west);
+	\draw[<-,blue]	(CompactUnSymmM.east) -- (SuperLUMTS.west);
+	\draw[<-,blue]	(DenseM.east) -- (LUS.west);
+	\draw[<-,blue]	(SkylineM.east) -- (SkylineS.west);
+	\draw[<-,blue]	(NonLinearS.east) -- (BFGSS.west);
+
+\end{tikzpicture}
+\endpgfgraphicnamed
+
+\end{figure*}
+
+\newpage
+
+\begin{figure*}[!h]
+
+\beginpgfgraphicnamed{pic3}
+
+\begin{tikzpicture}[%
+    matrixchild/.style={grow=down,anchor=west,
+	grow via three points={one child at (0.5,-1) and
+	two children at (0.5,-1) and (0.5,-2)},
+	edge from parent path ={(\tikzparentnode.south) |- (\tikzchildnode.west)}},
+	solverchild/.style={grow=down,anchor=east, xshift = -54mm,
+	grow via three points={one child at (0.5,-1) and
+	two children at (0.5,-1) and (0.5,-2)},
+	edge from parent path={(\tikzparentnode.south) |- (\tikzchildnode.east)}}]
+
+%Equation system part
+	\node at (0.5,-0.5) (SparseMP) [concret, text width = 32mm] {SparseMatrixProfile};
+
+	\node (SparseM) [abstract, below of = SparseMP, node distance = 28mm] {SparseMatrix}
+		child [matrixchild] { node (CompactM) [abstract] {CompactMatrix}
+			child [matrixchild] { node (CompactSymmM) [concret] {CompactSymmMatrix} }
+			child [matrixchild] { node (CompactUnSymmM) [concret] {CompactUnSymmMatrix} }
+			}
+		child [matrixchild] { node (DenseM) [concret, below of = CompactUnSymmM] {DenseMatrix} }
+		child [matrixchild] { node (SkylineM) [concret, below of = DenseM] {SkylineMatrix}};
+
+	\path[->] (SparseMP) edge [orange]
+		       node [above,sloped] {support} (SparseM);
+	\draw[<-] (SparseM.south) |- (CompactM.west);
+	\draw[<-] (CompactM.south) |- (CompactSymmM.west);
+
+	\node (NonLinearS)
+	[abstract, text width = 40mm, below of = SkylineM, node distance = 4cm]
+	{NonLinearSystem};
+
+
+% Solver part
+	\node (LinearS) [abstract, right of = SparseMP, node distance = 16cm] {LinearSolver}
+		child [solverchild]{ node (ConjGradIterS) [concret] {ConjGradIterSolver} }
+		child [solverchild]{ node (PSLDLTS) [concret] {PSLDLTSolver} }
+		child [solverchild]{ node (RCICGS) [concret] {RCICGSolver} }
+		child [solverchild]{ node (WSMPS) [concret] {WSMPSolver} }
+	    child [solverchild]{ node (PardisoS) [concret] {PardisoSolver} }
+		child [solverchild]{ node (SuperLUS) [concret] {SuperLUSolver} }
+		child [solverchild]{ node (SuperLUMTS) [concret] {SuperLU\_MT\_Solver} }
+		child [solverchild]{ node (LUS) [concret] {LUSolver} }
+		child [solverchild]{ node (SkylineS) [concret] {SkylineSolver} };
+
+	\draw[<-] (LinearS.south) |- (ConjGradIterS.east);
+
+	\node (BFGSS) [concret, below of = SkylineS, node distance = 28mm] {BFGSSolver};
+
+	\draw[->,orange] (LinearS.east) .. controls +(up:6mm) and +(right:16mm) .. node[above,sloped]
+					 {support} (BFGSS.east);
+
+% Solving relation
+	\draw[<-,blue] (CompactSymmM.east) -- node[above,sloped] {solve} (ConjGradIterS.west);
+	\draw[<-,blue]	(CompactSymmM.east) -- (PSLDLTS.west);
+	\draw[<-,blue]	(CompactSymmM.east) -- (RCICGS.west);
+	\draw[<-,blue]	(CompactSymmM.east) -- (WSMPS.west);
+	\draw[<-,blue]	(CompactSymmM.east) -- (PardisoS.west);
+	\draw[<-,blue]	(CompactUnSymmM.east) -- (PardisoS.west);
+	\draw[<-,blue]	(CompactUnSymmM.east) -- (SuperLUS.west);
+	\draw[<-,blue]	(CompactUnSymmM.east) -- (SuperLUMTS.west);
+	\draw[<-,blue]	(DenseM.east) -- (LUS.west);
+	\draw[<-,blue]	(SkylineM.east) -- (SkylineS.west);
+	\draw[<-,blue]	(NonLinearS.east) -- (BFGSS.west);
+
+
+	\draw[magenta] (0,0) rectangle (10,-10.5);
+	\node at (8,-0.5) [general] {Linear Systems};
+
+	\draw[magenta] (0,-11.5) rectangle (10,-14);
+	\node at (8,-13.5) [general] {Non Linear Systems};
+
+	\draw[magenta] (12,0) rectangle (21,-10.5);
+	\node at (14,-0.5) [general] {Linear Solvers};
+
+	\draw[magenta] (12,-11.5) rectangle (21,-14);
+	\node at (14,-13.5) [general] {Non Linear Solvers};
+
+	\draw[gray!80,very thick] (11,0) -- (11, -15);
+		\node at (8.5,-15) [general, gray, font=\sffamily\Large] {Equation Systems};
+		\node at (12.5,-15) [general, gray, font=\sffamily\Large] {Solvers};
+
+\end{tikzpicture}
+\endpgfgraphicnamed
+
+\end{figure*}
+
+\end{document}

@@ -1,20 +1,32 @@
-% Illustration of the FETI-H in acoustic field
 % file : FETI-H_air.tex
 % author : Alicia Wang, Total SA
+% date : 3 June 2014
+%
+% Illustration of the FETI-H in acoustic field.
+% $\Omega_a^{(t)}$ and $\Omega_a^{(q)}$ are two neighboring domains;
+% $n^t$ is the external normal on the interface.
+%
+% Utilization example
+% \begin{figure}
+%    \scalebox{0.7}{\input{img/FETI-H_air.tex}}
+% \end{figure}
+%
+%-------------------------------------------------------------------------
 
 \begin{tikzpicture}[
-  grid/.style={very thin},
-  axis/.style={->,gray},
   domain/.style={opacity=.5},
   air/.style={red},
   solid/.style={blue}
   ]
   
-  \draw[black] (-2,0) -- (0,2) -- (2,2) -- (-2,2) -- cycle;
+  \draw[black, thick] (-2,0) -- (2,0) -- (2,2) -- (-2,2) -- cycle;
+ 
+  \draw[->] (0, 1.3) -- (0.6, 1.3);
+  \node[anchor = south] at (0.6, 1.3) {$n^t$};
   
-  \draw[air, thick] (-6,0) -- (0,0);
-  \draw[air, thick] (-3,3) -- (-3,-3);
-  \node[air] at (-0.5, 2.1) {$\Gamma_a$};
+  \draw[air, very thick] (0,0) -- (0,2);
+%   \node[air, anchor = south] at (-0.5, 2) {$\Gamma_a$};
+  
   \node[air] at (-1, 1) {$\Omega_a^{(t)}$};
   \node[air] at (1, 1)  {$\Omega_a^{(q)}$};
   
